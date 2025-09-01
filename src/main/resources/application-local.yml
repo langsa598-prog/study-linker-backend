@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://studydb.cvs84gkomcwe.ap-northeast-2.rds.amazonaws.com:3306/studydb
+    username: studyuser
+    password: 12200000
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+        jdbc.time_zone: Asia/Seoul
+

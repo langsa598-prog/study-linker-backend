@@ -1,0 +1,18 @@
+# (RDS 연결)
+spring:
+  datasource:
+    url: jdbc:mariadb://<RDS-ENDPOINT>:3306/study_db?useSSL=true
+    username: ${DB_USERNAME}   # 운영은 환경변수로 주입
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate       # 운영 전환시엔 validate 권장
+    properties:
+      hibernate:
+        format_sql: false
+        default_batch_fetch_size: 100
+        jdbc.time_zone: Asia/Seoul
+
+server:
+  forward-headers-strategy: framework
