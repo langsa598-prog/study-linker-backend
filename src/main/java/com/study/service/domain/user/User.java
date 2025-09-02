@@ -12,11 +12,19 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
+    @Column(unique = true, nullable = false)
     private String username;
+
+    @Column(nullable = false)
     private String password;
+
     private String name;
+
+    @Column(unique = true)
     private String email;
-    private String role;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @ElementCollection
     @CollectionTable(name = "user_interest_tags", joinColumns = @JoinColumn(name = "user_id"))
@@ -41,11 +49,9 @@ public class User {
     }
 
     // ================= Getter / Setter =================
-
     public Long getUserId() {
         return userId;
     }
-
     public void setUserId(Long userId) {
         this.userId = userId;
     }
@@ -53,7 +59,6 @@ public class User {
     public String getUsername() {
         return username;
     }
-
     public void setUsername(String username) {
         this.username = username;
     }
@@ -61,7 +66,6 @@ public class User {
     public String getPassword() {
         return password;
     }
-
     public void setPassword(String password) {
         this.password = password;
     }
@@ -69,7 +73,6 @@ public class User {
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -77,23 +80,20 @@ public class User {
     public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
-
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
     public List<String> getInterestTags() {
         return interestTags;
     }
-
     public void setInterestTags(List<String> interestTags) {
         this.interestTags = interestTags;
     }
@@ -101,7 +101,6 @@ public class User {
     public Double getLatitude() {
         return latitude;
     }
-
     public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
@@ -109,7 +108,6 @@ public class User {
     public Double getLongitude() {
         return longitude;
     }
-
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
@@ -117,7 +115,6 @@ public class User {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
@@ -125,7 +122,6 @@ public class User {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
-
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
