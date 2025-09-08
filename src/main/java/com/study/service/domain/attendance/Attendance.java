@@ -28,12 +28,10 @@ public class Attendance {
     @Column(name = "checked_at", updatable = false)
     private LocalDateTime checkedAt = LocalDateTime.now();
 
-    // Enum for attendance status
     public enum Status {
         PRESENT, ABSENT, LATE
     }
 
-    // Getter & Setter
     public Long getAttendanceId() {
         return attendanceId;
     }
@@ -68,5 +66,9 @@ public class Attendance {
 
     public LocalDateTime getCheckedAt() {
         return checkedAt;
+    }
+
+    public void setCheckedAt(LocalDateTime checkedAt) {
+        this.checkedAt = checkedAt;
     }
 }

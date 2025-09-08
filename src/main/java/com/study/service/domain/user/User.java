@@ -2,7 +2,9 @@ package com.study.service.domain.user;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+
 
 @Entity
 @Table(name = "users")
@@ -10,6 +12,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long userId;
 
     @Column(unique = true, nullable = false)
@@ -26,10 +29,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_interest_tags", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "tag")
-    private List<String> interestTags;
+    private List<String> interestTags = new ArrayList<>();
 
     private Double latitude;
     private Double longitude;

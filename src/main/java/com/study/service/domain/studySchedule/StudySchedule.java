@@ -10,6 +10,7 @@ public class StudySchedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "schedule_id")
     private Long scheduleId;
 
     @ManyToOne

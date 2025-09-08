@@ -13,3 +13,7 @@ spring:
         default_batch_fetch_size: 100
         jdbc.time_zone: Asia/Seoul
 
+jwt:
+  secret: mySecretKey1234567890
+  expiration: 3600000
+

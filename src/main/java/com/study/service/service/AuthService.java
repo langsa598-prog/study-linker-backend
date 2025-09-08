@@ -1,12 +1,11 @@
 package com.study.service.service;
 
 import com.study.service.domain.user.User;
+import com.study.service.domain.user.Role;
 import com.study.service.repository.UserRepository;
 import com.study.service.config.JwtTokenProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -23,13 +22,25 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // 회원가입
-    public User signup(User user) {
+    // 일반 회원가입
+    public User signupUser(User user) {
         if(userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("이미 존재하는 사용자입니다.");
         }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("ROLE_USER"); // 기본 권한
+        user.setRole(Role.USER);
+        return userRepository.save(user);
+    }
+
+    // 관리자 회원가입
+    public User signupAdmin(User user) {
+        if(userRepository.existsByUsername(user.getUsername())) {
+            throw new RuntimeException("이미 존재하는 사용자입니다.");
+        }
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(Role.ADMIN);
         return userRepository.save(user);
     }
 
@@ -42,6 +53,6 @@ public class AuthService {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
 
-        return jwtTokenProvider.createToken(user.getUsername(), user.getRole());
+        return jwtTokenProvider.createToken(user.getUsername(), user.getRole().name());
     }
 }

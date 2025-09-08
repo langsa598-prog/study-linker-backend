@@ -1,33 +1,78 @@
 package com.study.service.service;
 
 import com.study.service.domain.studySchedule.StudySchedule;
+import com.study.service.domain.studySchedule.dto.StudyScheduleRequest;
 import com.study.service.repository.StudyScheduleRepository;
+import com.study.service.repository.StudyGroupRepository;
+import com.study.service.domain.studyGroup.StudyGroup;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class StudyScheduleService {
-    private final StudyScheduleRepository repository;
 
-    public StudyScheduleService(StudyScheduleRepository repository) {
-        this.repository = repository;
+    private final StudyScheduleRepository scheduleRepository;
+    private final StudyGroupRepository groupRepository;
+
+    public StudyScheduleService(StudyScheduleRepository scheduleRepository,
+                                StudyGroupRepository groupRepository) {
+        this.scheduleRepository = scheduleRepository;
+        this.groupRepository = groupRepository;
     }
 
     public List<StudySchedule> findAll() {
-        return repository.findAll();
+        return scheduleRepository.findAll();
     }
 
-    public Optional<StudySchedule> findById(Long id) {
-        return repository.findById(id);
+    public StudySchedule findById(Long id) {
+        return scheduleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("스터디 스케줄을 찾을 수 없습니다. ID: " + id));
     }
 
-    public StudySchedule save(StudySchedule schedule) {
-        return repository.save(schedule);
+    @Transactional
+    public StudySchedule save(StudyScheduleRequest request) {
+        StudyGroup group = groupRepository.findById(request.getGroupId())
+                .orElseThrow(() -> new IllegalArgumentException("스터디 그룹을 찾을 수 없습니다. ID: " + request.getGroupId()));
+
+        StudySchedule schedule = new StudySchedule();
+        schedule.setGroup(group);
+        schedule.setTitle(request.getTitle());
+        schedule.setDescription(request.getDescription());
+        schedule.setLocation(request.getLocation());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        schedule.setStartTime(LocalDateTime.parse(request.getStartTime(), formatter));
+        schedule.setEndTime(LocalDateTime.parse(request.getEndTime(), formatter));
+
+        return scheduleRepository.save(schedule);
+    }
+
+    @Transactional
+    public StudySchedule update(Long id, StudyScheduleRequest request) {
+        StudySchedule schedule = findById(id);
+
+        if (request.getGroupId() != null) {
+            StudyGroup group = groupRepository.findById(request.getGroupId())
+                    .orElseThrow(() -> new IllegalArgumentException("스터디 그룹을 찾을 수 없습니다. ID: " + request.getGroupId()));
+            schedule.setGroup(group);
+        }
+
+        schedule.setTitle(request.getTitle());
+        schedule.setDescription(request.getDescription());
+        schedule.setLocation(request.getLocation());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        schedule.setStartTime(LocalDateTime.parse(request.getStartTime(), formatter));
+        schedule.setEndTime(LocalDateTime.parse(request.getEndTime(), formatter));
+
+        return scheduleRepository.save(schedule);
     }
 
     public void deleteById(Long id) {
-        repository.deleteById(id);
+        scheduleRepository.deleteById(id);
     }
 }

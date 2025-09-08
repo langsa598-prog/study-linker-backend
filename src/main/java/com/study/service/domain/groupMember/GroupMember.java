@@ -23,9 +23,11 @@ public class GroupMember {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    private Role role = Role.MEMBER;
+    @Column(name = "role", nullable = false)
+    private Role role = Role.MEMBER; // 기본값으로 설정
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
     private Status status = Status.PENDING;
 
     @Column(name = "joined_at", updatable = false)
