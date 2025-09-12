@@ -13,6 +13,17 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    // --- 안내 GET 엔드포인트 ---
+    @GetMapping("/signup")
+    public String signupInfo() {
+        return "일반 회원가입 API입니다. POST 요청과 JSON Body를 사용하세요.";
+    }
+
+    @GetMapping("/signup/admin")
+    public String signupAdminInfo() {
+        return "관리자 회원가입 API입니다. POST 요청과 JSON Body를 사용하세요.";
+    }
+
     // 일반 사용자 회원가입
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest request) {

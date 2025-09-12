@@ -1,6 +1,7 @@
 package com.study.service.controller;
 
 import com.study.service.domain.studyGroup.StudyGroup;
+import com.study.service.domain.studyGroup.dto.RecommendedGroupDto;
 import com.study.service.service.StudyGroupService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,5 +39,18 @@ public class StudyGroupController {
     ) {
         StudyGroup created = service.createGroup(group, userId);
         return ResponseEntity.ok(created);
+    }
+
+    // 추천 그룹 조회
+    @GetMapping("/recommend")
+    public ResponseEntity<List<RecommendedGroupDto>> getRecommendedGroups(
+            @RequestParam Double userLat,
+            @RequestParam Double userLon,
+            @RequestParam String interestTags
+    ) {
+        List<RecommendedGroupDto> recommendedGroups =
+                service.findRecommendedGroups(userLat, userLon, interestTags);
+
+        return ResponseEntity.ok(recommendedGroups);
     }
 }
