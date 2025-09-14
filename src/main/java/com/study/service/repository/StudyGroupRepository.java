@@ -10,7 +10,7 @@ import java.util.List;
 public interface StudyGroupRepository extends JpaRepository<StudyGroup, Long> {
 
     @Query(value = """
-        SELECT 
+        SELECT
             sg.group_id,
             sg.title,
             sg.category,
@@ -25,12 +25,13 @@ public interface StudyGroupRepository extends JpaRepository<StudyGroup, Long> {
             )) AS distance
         FROM study_groups sg
         WHERE JSON_CONTAINS(:interestTags, JSON_QUOTE(sg.category))
-        HAVING distance <= 2
+        HAVING distance <= :distanceKm
         ORDER BY distance ASC
         """, nativeQuery = true)
     List<Object[]> findRecommendedGroups(
             @Param("userLat") Double userLat,
             @Param("userLon") Double userLon,
-            @Param("interestTags") String interestTags
+            @Param("interestTags") String interestTags,
+            @Param("distanceKm") Double distanceKm
     );
 }

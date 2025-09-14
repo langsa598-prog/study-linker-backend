@@ -1,21 +1,28 @@
 package com.study.service.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.study.service.domain.studyGroup.StudyGroup;
 import com.study.service.domain.studyGroup.dto.RecommendedGroupDto;
 import com.study.service.service.StudyGroupService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/api/study-groups")
 public class StudyGroupController {
 
     private final StudyGroupService service;
+    private final ObjectMapper objectMapper; // JSON 문자열 변환용
 
-    public StudyGroupController(StudyGroupService service) {
+    public StudyGroupController(StudyGroupService service, ObjectMapper objectMapper) {
         this.service = service;
+        this.objectMapper = objectMapper;
     }
 
     // 전체 조회
@@ -41,16 +48,25 @@ public class StudyGroupController {
         return ResponseEntity.ok(created);
     }
 
-    // 추천 그룹 조회
+    // 추천 그룹 조회 (위치 + 관심 태그)
     @GetMapping("/recommend")
     public ResponseEntity<List<RecommendedGroupDto>> getRecommendedGroups(
             @RequestParam Double userLat,
             @RequestParam Double userLon,
             @RequestParam String interestTags
     ) {
-        List<RecommendedGroupDto> recommendedGroups =
-                service.findRecommendedGroups(userLat, userLon, interestTags);
+        try {
+            List<String> tagsList = Arrays.stream(interestTags.split(","))
+                    .map(String::trim)
+                    .collect(Collectors.toList());
 
-        return ResponseEntity.ok(recommendedGroups);
+            List<RecommendedGroupDto> recommendedGroups =
+                    service.findRecommendedGroups(userLat, userLon, tagsList, 5.0);
+
+            return ResponseEntity.ok(recommendedGroups);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

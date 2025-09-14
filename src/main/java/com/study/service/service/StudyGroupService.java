@@ -2,6 +2,7 @@ package com.study.service.service;
 
 import com.study.service.domain.studyGroup.StudyGroup;
 import com.study.service.domain.studyGroup.dto.RecommendedGroupDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.service.domain.user.User;
 import com.study.service.repository.StudyGroupRepository;
 import com.study.service.repository.UserRepository;
@@ -50,17 +51,30 @@ public class StudyGroupService {
     }
 
     // 추천 그룹 조회 (Object[] → DTO 변환)
-    public List<RecommendedGroupDto> findRecommendedGroups(Double userLat, Double userLon, String interestTags) {
-        List<Object[]> results = repository.findRecommendedGroups(userLat, userLon, interestTags);
+    public List<RecommendedGroupDto> findRecommendedGroups(
+            Double userLat,
+            Double userLon,
+            List<String> interestTags,
+            Double distanceKm
+    ) {
+        String tagsJson;
+        try {
+            tagsJson = new ObjectMapper().writeValueAsString(interestTags); // List -> JSON 문자열
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of(); // JSON 변환 실패 시 빈 리스트 반환
+        }
+
+        List<Object[]> results = repository.findRecommendedGroups(userLat, userLon, tagsJson, distanceKm);
 
         return results.stream()
                 .map(row -> new RecommendedGroupDto(
-                        ((Number) row[0]).longValue(),   // groupId
-                        (String) row[1],                 // title
-                        (String) row[2],                 // category
-                        ((Number) row[3]).doubleValue(), // latitude
-                        ((Number) row[4]).doubleValue(), // longitude
-                        ((Number) row[5]).doubleValue()  // distance
+                        ((Number) row[0]).longValue(),
+                        (String) row[1],
+                        (String) row[2],
+                        ((Number) row[3]).doubleValue(),
+                        ((Number) row[4]).doubleValue(),
+                        ((Number) row[5]).doubleValue()
                 ))
                 .collect(Collectors.toList());
     }
