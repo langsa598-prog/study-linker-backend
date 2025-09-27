@@ -1,8 +1,11 @@
 package com.study.service.controller;
 
 import com.study.service.domain.user.User;
+import com.study.service.domain.user.Role;
+import com.study.service.domain.user.dto.UserRequest;
+import com.study.service.domain.user.dto.UserResponse;
 import com.study.service.service.AuthService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,10 +13,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
 
-    // --- 안내 GET 엔드포인트 ---
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
+    // 안내 GET 엔드포인트
     @GetMapping("/signup")
     public String signupInfo() {
         return "일반 회원가입 API입니다. POST 요청과 JSON Body를 사용하세요.";
@@ -24,81 +30,54 @@ public class AuthController {
         return "관리자 회원가입 API입니다. POST 요청과 JSON Body를 사용하세요.";
     }
 
-    // 일반 사용자 회원가입
-    @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignupRequest request) {
+    // 일반 회원가입
+    @PostMapping("/register")
+    public ResponseEntity<UserResponse> registerUser(@RequestBody UserRequest request) {
         try {
             User user = new User();
             user.setUsername(request.getUsername());
             user.setPassword(request.getPassword());
-            user.setName(request.getName());
             user.setEmail(request.getEmail());
-
-            authService.signupUser(user);
-            return ResponseEntity.ok("일반 회원가입 성공");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    // 관리자 회원가입
-    @PostMapping("/signup/admin")
-    public ResponseEntity<?> signupAdmin(@RequestBody SignupRequest request) {
-        try {
-            User user = new User();
-            user.setUsername(request.getUsername());
-            user.setPassword(request.getPassword());
             user.setName(request.getName());
-            user.setEmail(request.getEmail());
+            user.setRole(Role.USER); // 일반 회원
+            user.setLatitude(request.getLatitude());
+            user.setLongitude(request.getLongitude());
+            user.setInterestTags(request.getInterestTags());
 
-            authService.signupAdmin(user);
-            return ResponseEntity.ok("관리자 회원가입 성공");
+            // 회원가입
+            User savedUser = authService.signupUser(user);
+
+            // 응답 DTO
+            UserResponse response = new UserResponse();
+            response.setUserId(savedUser.getUserId());
+            response.setUsername(savedUser.getUsername());
+            response.setEmail(savedUser.getEmail());
+            response.setName(savedUser.getName());
+            response.setRole(savedUser.getRole());
+            response.setLatitude(savedUser.getLatitude());
+            response.setLongitude(savedUser.getLongitude());
+            response.setInterestTags(savedUser.getInterestTags());
+
+            return ResponseEntity.ok(response);
+
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         }
     }
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody UserRequest request) {
         try {
             String token = authService.login(request.getUsername(), request.getPassword());
             return ResponseEntity.ok(new JwtResponse(token));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 }
 
-class SignupRequest {
-    private String username;
-    private String password;
-    private String name;
-    private String email;
-
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-}
-
-class LoginRequest {
-    private String username;
-    private String password;
-
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-}
+// JWT 응답 DTO
 class JwtResponse {
     private String token;
 

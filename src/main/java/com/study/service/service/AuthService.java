@@ -22,7 +22,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // 일반 회원가입
+    // 회원가입
     public User signupUser(User user) {
         if(userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("이미 존재하는 사용자입니다.");
@@ -33,26 +33,19 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-    // 관리자 회원가입
-    public User signupAdmin(User user) {
-        if(userRepository.existsByUsername(user.getUsername())) {
-            throw new RuntimeException("이미 존재하는 사용자입니다.");
-        }
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(Role.ADMIN);
-        return userRepository.save(user);
-    }
-
-    // 로그인
+    // 로그인 (JWT 발급)
     public String login(String username, String password) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-
         if(!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
-
+        // JWT 토큰 생성
         return jwtTokenProvider.createToken(user.getUsername(), user.getRole().name());
+    }
+
+    // 아이디 존재 여부 확인
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
     }
 }
