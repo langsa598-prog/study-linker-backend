@@ -6,17 +6,19 @@ import com.study.service.repository.UserRepository;
 import com.study.service.config.JwtTokenProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder; // 타입 변경
 
     public AuthService(UserRepository userRepository,
                        JwtTokenProvider jwtTokenProvider,
-                       BCryptPasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder) { // 타입 변경
         this.userRepository = userRepository;
         this.jwtTokenProvider = jwtTokenProvider;
         this.passwordEncoder = passwordEncoder;
@@ -35,11 +37,20 @@ public class AuthService {
 
     // 로그인 (JWT 발급)
     public String login(String username, String password) {
+        // 디버그용 출력
+        System.out.println("입력한 아이디: " + username + " / 입력한 비번: " + password);
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-        if(!passwordEncoder.matches(password, user.getPassword())) {
+
+        // DB에서 꺼낸 해시값 출력
+        System.out.println("DB에 저장된 해시: " + user.getPassword());
+        System.out.println("matches 결과: " + passwordEncoder.matches(password, user.getPassword()));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
+
         // JWT 토큰 생성
         return jwtTokenProvider.createToken(user.getUsername(), user.getRole().name());
     }
