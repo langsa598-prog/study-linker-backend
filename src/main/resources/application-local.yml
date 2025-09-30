@@ -14,6 +14,7 @@ spring:
         jdbc.time_zone: Asia/Seoul
 
 jwt:
-  secret: mySecretKey1234567890
+  secret: "MySuperSecureSecretKey_ForStudyLinker_App_2025_AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJ"
   expiration: 3600000
+
 

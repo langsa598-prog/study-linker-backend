@@ -51,8 +51,12 @@ public class AuthService {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
 
-        // JWT 토큰 생성
-        return jwtTokenProvider.createToken(user.getUsername(), user.getRole().name());
+        return jwtTokenProvider.createToken(
+                user.getUsername(),
+                user.getRole().name(),
+                user.getUserId()    // ← User 엔티티의 PK
+        );
+
     }
 
     // 아이디 존재 여부 확인
