@@ -1,0 +1,21 @@
+# (RDS 연결)
+# 그 밑에 (RDS 연결) 블록 + server.forward-headers-strategy는
+#👉 application-prod.yml로 분리해서 “나중에 운영용 템플릿”으로 두면 됨
+spring:
+  datasource:
+    url: jdbc:mariadb://<RDS-ENDPOINT>:3306/study_db?useSSL=true
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+        default_batch_fetch_size: 100
+        jdbc.time_zone: Asia/Seoul
+
+server:
+  forward-headers-strategy: framework
+

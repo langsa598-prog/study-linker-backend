@@ -1,0 +1,106 @@
+package com.study.service.groupmember.domain;
+
+import com.study.service.studygroup.domain.StudyGroup;
+import com.study.service.user.domain.User;
+import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(
+        name = "Group_members", // 🔹 테이블명 소문자 권장
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"group_id", "user_id"})
+        }
+)
+public class GroupMember {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "member_id")
+    private Long memberId;
+
+    @ManyToOne(fetch = FetchType.LAZY) // 🔹 LAZY 권장
+    @JoinColumn(name = "group_id", nullable = false)
+    private StudyGroup group;
+
+    @ManyToOne(fetch = FetchType.LAZY) // 🔹 LAZY 권장
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role = Role.MEMBER; // 기본값 MEMBER
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private Status status = Status.PENDING; // 기본값 PENDING
+
+    @Column(name = "joined_at", updatable = false)
+    private LocalDateTime joinedAt;
+
+    public enum Role {
+        LEADER,
+        MEMBER
+    }
+
+    public enum Status {
+        PENDING,
+        APPROVED,
+        REJECTED
+    }
+
+    public GroupMember() {
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.joinedAt == null) {
+            this.joinedAt = LocalDateTime.now();
+        }
+    }
+
+    // ========= Getter / Setter =========
+
+    public Long getMemberId() {
+        return memberId;
+    }
+    public void setMemberId(Long memberId) {
+        this.memberId = memberId;
+    }
+
+    public StudyGroup getGroup() {
+        return group;
+    }
+    public void setGroup(StudyGroup group) {
+        this.group = group;
+    }
+
+    public User getUser() {
+        return user;
+    }
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getJoinedAt() {
+        return joinedAt;
+    }
+    public void setJoinedAt(LocalDateTime joinedAt) {
+        this.joinedAt = joinedAt;
+    }
+}
